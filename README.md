@@ -6,6 +6,10 @@ Zoom Clone using WebRTC and WebSocket
 [참고 : MDN getUserMedia()](https://developer.mozilla.org/ko/docs/Web/API/MediaDevices/getUserMedia)
 
 
+## npm 라이브러리
+
+- npm i ws =>  node.js webSocket library (사용하기 편하고, 아주 빠르다)
+
 ## git convention
 
 - feat: 새로운 기능 추가 
