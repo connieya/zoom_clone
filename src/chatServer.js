@@ -18,13 +18,21 @@ const handleListen = () => console.log(`Listening on http://localhost:3000`);
 const server = http.createServer(app); // http 서버
 const wss = new WebSocket.Server({ server }); // webSocket 서버
 
+// fake database , 누가 연결되어 있는지 알기 위해서
+// 서버에 연결된 브라우저를 담자
+const socket_info = [];
+
 wss.on("connection", (s) => {
+  socket_info.push(s); // firefox , chrome , edge 등 각 클라이언트를 담는다.
   s.on("close", () => {
     console.log("Disconnected from Client");
   });
-  s.send("hello !!");
+  // s.send("hello !!");
   s.on("message", (m) => {
-    console.log(m);
+    // s.send(m); // 클라이언트에서 받은 채팅 메시지를 다시 클라이언트에게 보낸다
+
+    // 연결된 모든 Socket에 접근하고 메시지를 보낸다.
+    socket_info.forEach((each_client) => each_client.send(m));
   });
 });
 
