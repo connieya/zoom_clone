@@ -215,6 +215,7 @@ Internet Connectivity Establishment (인터넷 연결 생성)
 - IceCandidate 는 webRTC  에 필요한 프로토콜이다.
 - 멀리 떨어진 장치와 소통할 수 있게 하기 위한 프로토콜과 라우팅을 의미
 - 브라우저가 서로 소통할 수 있게 해주는 방법이다.
+- 두 단말이 서로 통신할 수 있는 최적의 경로를 찾을 수 있도록 도와주는 프레임워크? 이다
 
 
 ### web RTC RtpSender
@@ -222,4 +223,22 @@ Internet Connectivity Establishment (인터넷 연결 생성)
 [홈페이지](https://developer.mozilla.org/en-US/docs/Web/API/RTCRtpSender)
 
 - Sender 는 우리의 peer로 보내진 media stream track 을 컨트롤하게 해준다.
+
+
+### STUN server (Session Traversal Utilities for NATZ)
+  
+- NAT 환경에서는 Private IP 를 별도로 가지고 있기 때문에 Peer-to-Peer 통신이 불가능 하다.
+- 따라서 클라이언트는 자신의 public IP를 확인하기 위해 STUN 서버로 요청을 보낸다.
+- 이후 서버로 부터 자신의 public IP 를 받는다.
+- STUN 서버는 컴퓨터가 공용 IP 주소를 찾게 해준다.
+- 어떠한 것을 request 함녀 인터넷에서 네가 누군지를 알려주는 서버이다.
+
+
+![image](https://user-images.githubusercontent.com/66653324/178146533-94a9011c-c34b-4c17-ac78-e3f6f2a390cb.png)
+
+
+### RTC Data Channel
+
+- Data Channel 은 peer-to-peer 유저가 언제든지 모든 종류의 데이터를 주고 받을 수 있는 채널이다.
+- 이미지 ,오디오 뿐 아니라 파일 , 텍스트, 게임 업데이트 패킷 같은 것들도 주고 받을 수 있다.
 
