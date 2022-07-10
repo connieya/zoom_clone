@@ -195,3 +195,7 @@ WebRTC 를 사용하면 peer-to-peer 통신이 가능하다.
 서버가 필요한 이유는 다른 클라이언트의 위치를 알려 주기 때문이다.
 
 
+### peer-to-peer process
+
+![image](https://user-images.githubusercontent.com/66653324/178140878-cf9c66c2-91d7-4c52-abf6-77254674d52d.png)
+

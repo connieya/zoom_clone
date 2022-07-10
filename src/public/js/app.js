@@ -5,7 +5,6 @@ const muteBtn = document.getElementById("mute");
 const cameraBtn = document.getElementById("camera");
 const camerasSelect = document.getElementById("cameras");
 
-const welcome = document.getElementById("welcome");
 const call = document.getElementById("call");
 
 call.hidden = true;
@@ -13,6 +12,7 @@ call.hidden = true;
 let myStream;
 let muted = true;
 let cameraOff = true;
+let roomName;
 
 async function getCameras() {
   try {
@@ -36,8 +36,9 @@ async function getCameras() {
   }
 }
 
+// 카메라 , 마이크를 가져온다.
 async function getMedia(deviceId) {
-  console.log("deviceId = ", deviceId);
+  // console.log("getMedia 호출  = ", deviceId);
   const initialConstrains = {
     audio: true,
     video: { facingMode: "user" },
@@ -66,19 +67,8 @@ async function getMedia(deviceId) {
   }
 }
 
-function handleCameraClick() {
-  myStream
-    .getVideoTracks()
-    .forEach((track) => (track.enabled = !track.enabled));
-  if (cameraOff) {
-    cameraBtn.innerText = "Turn Camera Off";
-    cameraOff = false;
-  } else {
-    cameraBtn.innerText = "Turn Camera On";
-    cameraOff = true;
-  }
-}
-function handleMuteClick() {
+// 음소커 on / off
+muteBtn.addEventListener("click", () => {
   console.log("myStram.getAudioTracks() = ", myStream.getAudioTracks());
   myStream
     .getAudioTracks()
@@ -91,24 +81,53 @@ function handleMuteClick() {
     muteBtn.innerText = "Mute";
     muted = false;
   }
-}
+});
+
+// 카메라 on / off
+cameraBtn.addEventListener("click", () => {
+  myStream
+    .getVideoTracks()
+    .forEach((track) => (track.enabled = !track.enabled));
+  if (cameraOff) {
+    cameraBtn.innerText = "Turn Camera Off";
+    cameraOff = false;
+  } else {
+    cameraBtn.innerText = "Turn Camera On";
+    cameraOff = true;
+  }
+});
 
 async function handleCameraChange() {
   console.log("cameraSelect / value ", camerasSelect.value);
   await getMedia(camerasSelect.value);
 }
 
-muteBtn.addEventListener("click", handleMuteClick);
-cameraBtn.addEventListener("click", handleCameraClick);
 camerasSelect.addEventListener("input", handleCameraChange);
 
-welcomeForm = welcome.querySelector("form");
+// 방 선택하는 코드
+const welcome = document.getElementById("welcome");
+const welcomeForm = welcome.querySelector("form");
 
-function handleWelcomeSubmit(event) {
-  event.preventDefault();
-  const input = welcomeForm.querySelector("input");
-  socket.emit("join_room", input.value);
-  input.value = "";
+function startMedia() {
+  welcome.hidden = true;
+  call.hidden = false;
+
+  // 카메라 , 마이크를 불러온다.
+  getMedia();
 }
 
-welcomeForm.addEventListener("submit", handleWelcomeSubmit);
+welcomeForm.addEventListener("submit", (event) => {
+  event.preventDefault();
+  const input = welcomeForm.querySelector("input");
+  socket.emit("join_room", input.value, startMedia);
+  roomName = input.value;
+  const h1 = call.querySelector("h1");
+  h1.innerText = `Room : ${input.value}`;
+  input.value = "";
+});
+
+// Socket Code
+
+socket.on("welcome", () => {
+  console.log("someone join");
+});
