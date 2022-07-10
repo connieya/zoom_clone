@@ -17,11 +17,12 @@ wsServer.on("connection", (socket) => {
   socket.on("join_room", (roomName, done) => {
     socket.join(roomName);
     // 서버에서 실핼 시키지 않고 클라이언트에서 실행 시킨다.
+    // 클라이언트 startMedia 함수
     done();
     socket.to(roomName).emit("welcome");
   });
   socket.on("offer", (offer, roomName) => {
-    socket.to(roomName).emit("offer", offer);
+    socket.to(roomName).emit("offer_res", offer);
   });
   socket.on("answer", (answer, roomName) => {
     socket.to(roomName).emit("answer", answer);

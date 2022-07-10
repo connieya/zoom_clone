@@ -13,6 +13,7 @@ let myStream;
 let muted = true;
 let cameraOff = true;
 let roomName;
+let myPeerConnection;
 
 async function getCameras() {
   try {
@@ -57,7 +58,7 @@ async function getMedia(deviceId) {
 
     myFace.srcObject = myStream;
     if (!deviceId) {
-      console.log("?????????");
+      console.log("deviceId ? ", deviceId);
       myStream.getVideoTracks().forEach((track) => (track.enabled = false));
       myStream.getAudioTracks().forEach((track) => (track.enabled = false));
       await getCameras();
@@ -108,17 +109,22 @@ camerasSelect.addEventListener("input", handleCameraChange);
 const welcome = document.getElementById("welcome");
 const welcomeForm = welcome.querySelector("form");
 
-function startMedia() {
+// 카메라 화면이 켜지고
+// 카메라와 마이크를 불러온다.
+async function startMedia() {
   welcome.hidden = true;
   call.hidden = false;
 
   // 카메라 , 마이크를 불러온다.
-  getMedia();
+  await getMedia();
+  makeConnection();
 }
 
 welcomeForm.addEventListener("submit", (event) => {
   event.preventDefault();
   const input = welcomeForm.querySelector("input");
+
+  // 마지막 인자로 startMedia 함수를 넘긴다.
   socket.emit("join_room", input.value, startMedia);
   roomName = input.value;
   const h1 = call.querySelector("h1");
@@ -128,6 +134,25 @@ welcomeForm.addEventListener("submit", (event) => {
 
 // Socket Code
 
-socket.on("welcome", () => {
-  console.log("someone join");
+socket.on("welcome", async () => {
+  // console.log("someone join");
+  const offer = await myPeerConnection.createOffer();
+  myPeerConnection.setLocalDescription(offer);
+  console.log("send offer = ", offer);
+  socket.emit("offer", offer, roomName);
 });
+
+//  클라이언트끼리 연결하기 위해 서버에게 offer 를 먼저 보내야 한다.
+socket.on("offer_res", (o) => {
+  console.log("offer response = ", o);
+});
+
+// RTC Code
+
+// 클라이언트 끼리 peer to peer 연결 하는 코드
+function makeConnection() {
+  myPeerConnection = new RTCPeerConnection();
+  myStream
+    .getTracks()
+    .forEach((track) => myPeerConnection.addTrack(track, myStream));
+}
