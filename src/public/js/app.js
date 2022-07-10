@@ -6,6 +6,8 @@ const cameraBtn = document.getElementById("camera");
 // const camerasSelect = document.getElementById("cameras");
 
 const call = document.getElementById("call");
+const words = document.getElementById("words");
+let p;
 
 call.hidden = true;
 
@@ -14,6 +16,8 @@ let muted = true;
 let cameraOff = true;
 let roomName;
 let myPeerConnection;
+let recognition;
+let nickName;
 
 async function getCameras() {
   try {
@@ -55,7 +59,7 @@ async function getMedia(deviceId) {
     myStream = await navigator.mediaDevices.getUserMedia(
       deviceId ? cameraConstrains : initialConstrains
     );
-
+    console.log("myStream ", myStream);
     myFace.srcObject = myStream;
     if (!deviceId) {
       console.log("deviceId ? ", deviceId);
@@ -86,9 +90,13 @@ muteBtn.addEventListener("click", () => {
 
 // 카메라 on / off
 cameraBtn.addEventListener("click", () => {
-  myStream
-    .getVideoTracks()
-    .forEach((track) => (track.enabled = !track.enabled));
+  console.log("myStram.getVideoTracks() = ", myStream.getVideoTracks());
+  myStream.getVideoTracks().forEach((track) => {
+    console.log("track = ", track);
+    track.muted = !track.muted;
+    track.enabled = !track.enabled;
+  });
+
   if (cameraOff) {
     cameraBtn.innerText = "Turn Camera Off";
     cameraOff = false;
@@ -117,6 +125,11 @@ cameraBtn.addEventListener("click", () => {
 const welcome = document.getElementById("welcome");
 const welcomeForm = welcome.querySelector("form");
 
+let makeNewTextContent = function () {
+  p = document.createElement("p");
+  words.appendChild(p);
+};
+
 // 카메라 화면이 켜지고
 // 카메라와 마이크를 불러온다.
 async function initVidepChat() {
@@ -126,18 +139,55 @@ async function initVidepChat() {
   // 카메라 , 마이크를 불러온다.
   await getMedia();
   makeConnection();
+  window.SpeechRecognition =
+    window.SpeechRecognition || window.webkitSpeechRecognition;
+  recognition = new SpeechRecognition();
+
+  recognition.interimResults = true;
+  recognition.lang = "ko-KR";
+  recognition.start();
+  // console.log("recognition  = ", recognition);
+
+  recognition.onstart = function () {
+    console.log("onstart ...");
+    makeNewTextContent(); // 음성 인식 시작시마다 새로운 문단을 추가한다.
+  };
+
+  recognition.onend = function () {
+    console.log("onend ... ");
+    recognition.start();
+  };
+
+  recognition.onresult = function (e) {
+    let texts = Array.from(e.results)
+      .map((results) => results[0].transcript)
+      .join("");
+
+    console.log("texts = ", texts);
+    // console.log("today = ", new Date());
+    texts.replace(/느낌표|강조|뿅/gi, "❗️");
+
+    p.textContent = `${nickName} : ${texts}`;
+    // console.log("p = ", p);
+  };
 }
 
+// 방 입장 코드
 welcomeForm.addEventListener("submit", async (event) => {
   event.preventDefault();
-  const input = welcomeForm.querySelector("input");
+  const room_name = welcomeForm.querySelector("#room-name");
+  const nick_name = welcomeForm.querySelector("#nick-name");
+
   await initVidepChat();
-  socket.emit("join_room", input.value);
+  socket.emit("join_room", room_name.value, nick_name.value);
   console.log("join room !!");
-  roomName = input.value;
+  roomName = room_name.value;
+  nickName = nick_name.value;
+  console.log("room_name =  ", room_name.value);
+  console.log("nick_name =  ", nick_name.value);
   const h1 = call.querySelector("h1");
-  h1.innerText = `Room : ${input.value}`;
-  input.value = "";
+  h1.innerText = `Room : ${room_name.value}`;
+  room_name.value = "";
 });
 
 // Socket Code
