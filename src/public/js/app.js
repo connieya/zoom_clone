@@ -99,9 +99,18 @@ cameraBtn.addEventListener("click", () => {
 });
 
 // 카메라 선택 안할 꺼야!!
-// camerasSelect.addEventListener("input",async ()=>{
-// console.log("cameraSelect / value ", camerasSelect.value);
+// camerasSelect.addEventListener("input", async () => {
+//   // console.log("cameraSelect / value ", camerasSelect.value);
 //   await getMedia(camerasSelect.value);
+
+//   // 카메라를 바꾸면 다른 브라우저에게도 적용이 돼야한다.
+//   if (myPeerConnection) {
+//     const videoTrack = myStream.getVideoTracks()[0];
+//     const videoSender = myPeerConnection
+//       .getSenders()
+//       .find((sender) => sender.track.kind === "video");
+//     videoSender.replaceTrack(videoTrack);
+//   }
 // });
 
 // 방 선택하는 코드

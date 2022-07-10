@@ -10,6 +10,10 @@ Zoom Clone using WebRTC and WebSocket
 
 - npm i ws =>  node.js webSocket library (사용하기 편하고, 아주 빠르다)
 
+- npm i -g localtunnel => local tunnel 은 서버를 전세계와 공유하게 해준다.
+
+- lt --port 3000 => URL 생성
+
 ## git convention
 
 - feat: 새로운 기능 추가 
@@ -201,7 +205,7 @@ WebRTC 를 사용하면 peer-to-peer 통신이 가능하다.
 
 
 
-### RTC IceCandidate
+### web RTC IceCandidate
 
 [홈페이지](https://developer.mozilla.org/ko/docs/Web/API/RTCIceCandidate)
 
@@ -211,3 +215,11 @@ Internet Connectivity Establishment (인터넷 연결 생성)
 - IceCandidate 는 webRTC  에 필요한 프로토콜이다.
 - 멀리 떨어진 장치와 소통할 수 있게 하기 위한 프로토콜과 라우팅을 의미
 - 브라우저가 서로 소통할 수 있게 해주는 방법이다.
+
+
+### web RTC RtpSender
+
+[홈페이지](https://developer.mozilla.org/en-US/docs/Web/API/RTCRtpSender)
+
+- Sender 는 우리의 peer로 보내진 media stream track 을 컨트롤하게 해준다.
+
