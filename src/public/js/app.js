@@ -173,7 +173,21 @@ socket.on("ice_res", (ice) => {
 
 // 클라이언트 끼리 peer to peer 연결 하는 코드
 function makeConnection() {
-  myPeerConnection = new RTCPeerConnection();
+  myPeerConnection = new RTCPeerConnection({
+    iceServers: [
+      {
+        // 구글이 제공하는 무료 stun 서버
+        // 내 어플리케이션을 만들 때는 여기에 의존하면 안된다.
+        urls: [
+          "stun:stun.l.google.com:19302",
+          "stun:stun1.l.google.com:19302",
+          "stun:stun2.l.google.com:19302",
+          "stun:stun3.l.google.com:19302",
+          "stun:stun4.l.google.com:19302",
+        ],
+      },
+    ],
+  });
   myPeerConnection.addEventListener("icecandidate", (data) => {
     socket.emit("ice", data.candidate, roomName);
     // console.log("got ice candidate = ", data);
