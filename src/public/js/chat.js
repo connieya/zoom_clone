@@ -61,3 +61,64 @@
 const socket = io(); // io 는 자동적으로 back-end socket.io 와 연결 해주는 function
 // 크롬 브라우저 콘솔 에 입력하면 io 라는 function 을 볼 수 있다.
 // io function이 알아서 socket.io 를 실행하고 있는 서버를 찾는다.
+
+const welcome = document.getElementById("welcome");
+const welcomeForm = welcome.querySelector("form");
+const chatRoom = document.getElementById("chat_room");
+const chat_form = chatRoom.querySelector("form");
+let roomName;
+
+chatRoom.hidden = true;
+
+function showRoom() {
+  welcomeForm.hidden = true;
+  chatRoom.hidden = false;
+  const room_header = document.querySelector("h3");
+  room_header.innerText = `Room : ${roomName}`;
+}
+
+// 채팅 메세지 전송
+chat_form.addEventListener("submit", (event) => {
+  event.preventDefault();
+  const input = chat_form.querySelector("input");
+  const msg = input.value;
+  socket.emit("new_message", input.value, roomName, () => {
+    addMessage(`나 : ${msg}`);
+  });
+  input.value = "";
+});
+
+// 채팅 방 입장
+welcomeForm.addEventListener("submit", (event) => {
+  event.preventDefault();
+  const input = welcomeForm.querySelector("input");
+  roomName = input.value;
+  // webSocket 과 다르게 json stringfy 할 필요가 없다.
+  // socket io 는  object 를 사용할 수 있기 때문이다.
+  // socket io가 알아서 string 을 object 로 바꿔준다.
+  // socket io 는 webSocket 과 다르게 emit 을 사용하여
+  // 원하는 event 명을 사용 할 수 있다.
+  socket.emit("join_room", input.value, showRoom);
+  // socket io 는 여러 개의 argument 를 서버에 보낼 수 있다.
+  input.value = "";
+});
+
+function addMessage(message) {
+  const ul = chatRoom.querySelector("ul");
+  const li = document.createElement("li");
+  li.innerText = message;
+  ul.appendChild(li);
+}
+
+// socket io 에서는 더이상 socket.addEventListener 를 사용안해도 된다.
+socket.on("welcome", () => {
+  addMessage("someone joined!");
+});
+
+socket.on("bye", () => {
+  addMessage("someone left!");
+});
+
+socket.on("new_message", (msg) => {
+  addMessage(msg);
+});
