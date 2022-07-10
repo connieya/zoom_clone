@@ -111,7 +111,7 @@ const welcomeForm = welcome.querySelector("form");
 
 // 카메라 화면이 켜지고
 // 카메라와 마이크를 불러온다.
-async function startMedia() {
+async function initVidepChat() {
   welcome.hidden = true;
   call.hidden = false;
 
@@ -120,12 +120,12 @@ async function startMedia() {
   makeConnection();
 }
 
-welcomeForm.addEventListener("submit", (event) => {
+welcomeForm.addEventListener("submit", async (event) => {
   event.preventDefault();
   const input = welcomeForm.querySelector("input");
 
-  // 마지막 인자로 startMedia 함수를 넘긴다.
-  socket.emit("join_room", input.value, startMedia);
+  await initVidepChat();
+  socket.emit("join_room", input.value);
   roomName = input.value;
   const h1 = call.querySelector("h1");
   h1.innerText = `Room : ${input.value}`;
@@ -143,8 +143,17 @@ socket.on("welcome", async () => {
 });
 
 //  클라이언트끼리 연결하기 위해 서버에게 offer 를 먼저 보내야 한다.
-socket.on("offer_res", (o) => {
+socket.on("offer_res", async (o) => {
   console.log("offer response = ", o);
+  myPeerConnection.setRemoteDescription(o);
+  const answer = await myPeerConnection.createAnswer();
+  console.log("answer = ", answer);
+  myPeerConnection.setLocalDescription(answer);
+  socket.emit("answer", answer, roomName);
+});
+
+socket.on("answer_res", (answer) => {
+  myPeerConnection.setRemoteDescription(answer);
 });
 
 // RTC Code
