@@ -117,3 +117,53 @@ request-response 과정이 필요 없다.
 
 각 클라이언트의 소켓을 배열에 담은 뒤 
 배열에 담긴 소켓 리스트에 받은 메시지를 다시 전송한다.
+
+
+ex)
+
+```javascript
+// fake database , 누가 연결되어 있는지 알기 위해서
+// 서버에 연결된 브라우저를 담자
+const socket_info = [];
+```
+
+### SOCKET. IO framework 사용하기 
+
+
+채팅으로 다른 클라이언트에게 메세지를 보낼 때
+나를 제외한 다른 클라이언트에게만 메세지를 보내고 싶다.
+
+그리고 json -> string , string -> json 과 같은 작업이 번거로운데
+이것을 간단하게 할 방법이 있을까??
+
+메시지가 여러 종류라면 , 이것을 구분하기 위해 switch - case 문과 같이
+조건 분기를 해줘야 하는데, 간단하게 해결하는 방법이 있을까?
+
+클라이언트끼리 채팅을 주고 받기 위해 fake database 를 만들어서 
+모든 클라이언트에게 데이터를 전송하는데, 이때 특정 클라이언트가 연결이 끊겼을 때, 어떻게 확인해야 할까? 
+
+연결된 클라리언트가 몇명인지 확인하고 싶은데 어떻게 알 수 있을까?
+
+#### SOCKET IO 프레임워크를 사용하자 !!
+
+#### [홈페이지](https://socket.io/)
+
+Socket.IO enables real-time , bidirectinal and event-based communication.
+
+It works on every platform, browser or device , focusing 
+equally on reliability and speed
+
+
+![image](https://user-images.githubusercontent.com/66653324/178130811-4987fa45-19fc-4fd2-91bd-ccd8ecea75b0.png)
+
+
+
+#### webSocket 과 차이점은?
+
+webSocket 은 SOCKET IO 가 실시간 , 양방향 , event 기반 통신을 제공하는
+방법 중 하나일 뿐이다. 
+
+SOCKET IO 는 "websocket 의 부가기능" 이 아니다.
+
+만약 websocket 이용이 불가능하면, socket IO 는 다른 방법을 이용해서
+계속 작동한다 (예를 들어,  HTTP long pollng 같은 방법)
