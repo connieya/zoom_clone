@@ -199,3 +199,15 @@ WebRTC 를 사용하면 peer-to-peer 통신이 가능하다.
 
 ![image](https://user-images.githubusercontent.com/66653324/178140878-cf9c66c2-91d7-4c52-abf6-77254674d52d.png)
 
+
+
+### RTC IceCandidate
+
+[홈페이지](https://developer.mozilla.org/ko/docs/Web/API/RTCIceCandidate)
+
+
+Internet Connectivity Establishment (인터넷 연결 생성)
+
+- IceCandidate 는 webRTC  에 필요한 프로토콜이다.
+- 멀리 떨어진 장치와 소통할 수 있게 하기 위한 프로토콜과 라우팅을 의미
+- 브라우저가 서로 소통할 수 있게 해주는 방법이다.
