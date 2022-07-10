@@ -59,29 +59,33 @@ wss.on("connection", (s) => {
 // 여기서 부터 socket.io 코드
 io.on("connection", (sk) => {
   // websocket 이 아니라 socketIO 의 socket 이다.
-
+  console.log("!!!", io.sockets.adapter);
   sk.onAny(() => {});
 
   sk.on("join_room", (roomName, showRoom) => {
+    sk["nickname"] = "Anon";
     // socket io 가 알아서 javascript object로 만들어준다.
     // console.log(data);
     sk.join(roomName);
     showRoom();
     // 나를 제외한 방에 있는 다른 사람에게 메시지를 보낸다.
     // socket io 는 이게 가능하다.
-    sk.to(roomName).emit("welcome");
+    sk.to(roomName).emit("welcome", sk.nickname);
   });
 
   // 채팅방 나감
   sk.on("disconnecting", () => {
-    sk.rooms.forEach((room) => sk.to(room).emit("bye"));
+    sk.rooms.forEach((room) => sk.to(room).emit("bye", sk.nickname));
   });
 
   // 채팅 메세지 보냄
   sk.on("new_message", (chat_message, room_name, done) => {
-    sk.to(room_name).emit("new_message", chat_message);
+    sk.to(room_name).emit("new_message", `${sk.nickname} : ${chat_message}`);
     done();
   });
+
+  // 닉네임 설정
+  sk.on("nickname", (nick) => (sk["nickname"] = nick));
 });
 
 server.listen(3000, handleListen);

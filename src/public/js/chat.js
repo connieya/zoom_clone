@@ -65,7 +65,8 @@ const socket = io(); // io 는 자동적으로 back-end socket.io 와 연결 해
 const welcome = document.getElementById("welcome");
 const welcomeForm = welcome.querySelector("form");
 const chatRoom = document.getElementById("chat_room");
-const chat_form = chatRoom.querySelector("form");
+const chat_form = document.getElementById("msg");
+const nickname_form = document.getElementById("nickname");
 let roomName;
 
 chatRoom.hidden = true;
@@ -76,6 +77,13 @@ function showRoom() {
   const room_header = document.querySelector("h3");
   room_header.innerText = `Room : ${roomName}`;
 }
+
+//닉네임 설정
+nickname_form.addEventListener("submit", (event) => {
+  event.preventDefault();
+  const input = nickname_form.querySelector("input");
+  socket.emit("nickname", input.value);
+});
 
 // 채팅 메세지 전송
 chat_form.addEventListener("submit", (event) => {
@@ -111,12 +119,12 @@ function addMessage(message) {
 }
 
 // socket io 에서는 더이상 socket.addEventListener 를 사용안해도 된다.
-socket.on("welcome", () => {
-  addMessage("someone joined!");
+socket.on("welcome", (nickname) => {
+  addMessage(`${nickname} joined!`);
 });
 
-socket.on("bye", () => {
-  addMessage("someone left!");
+socket.on("bye", (nickname) => {
+  addMessage(`${nickname} left!`);
 });
 
 socket.on("new_message", (msg) => {
