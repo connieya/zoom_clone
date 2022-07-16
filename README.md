@@ -12,6 +12,8 @@ Zoom Clone using WebRTC and WebSocket
 
 - npm i -g localtunnel => local tunnel 은 서버를 전세계와 공유하게 해준다.
 
+- npm i @socket.io/admin-ui
+
 - lt --port 3000 => URL 생성
 
 ## git convention
@@ -171,6 +173,12 @@ SOCKET IO 는 "websocket 의 부가기능" 이 아니다.
 
 만약 websocket 이용이 불가능하면, socket IO 는 다른 방법을 이용해서
 계속 작동한다 (예를 들어,  HTTP long pollng 같은 방법)
+
+### Adapter
+
+[홈페이지](https://socket.io/docs/v4/adapter/)
+
+- Adapter 는 다른 서버들 사이에 실시간 어플리케이션을 동기화 한다.
 
 
 

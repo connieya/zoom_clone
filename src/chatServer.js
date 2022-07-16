@@ -1,24 +1,3 @@
-import express, { json } from "express";
-import http from "http";
-import WebSocket from "ws";
-import SocketIO from "socket.io";
-
-const app = express();
-
-app.set("view engine", "pug");
-app.set("views", __dirname + "/views");
-app.use("/public", express.static(__dirname + "/public"));
-app.get("/", (req, res) => res.render("chat"));
-app.get("/*", (req, res) => res.redirect("/")); // 어떤 URL 을 입력해도 home 로 리다이렉트 해주는 코드
-
-// http: , ws: 둘다 가능
-const handleListen = () => console.log(`Listening on http://localhost:3000`);
-
-// http 서버 와 webSocket 서버 둘 다 사용하기 webSocket 서버만 사용해도 된다.
-// http 서버 위에 webSocket  서버를 만들 수 있도록 하기
-const server = http.createServer(app); // http 서버
-const io = SocketIO(server); // socket.io 서버 설정
-
 // web socket 코드  모두 주석 처리
 // const wss = new WebSocket.Server({ server }); // webSocket 서버
 
@@ -55,37 +34,104 @@ wss.on("connection", (s) => {
     }
   });
 }); */
+import express, { json } from "express";
+import http from "http";
+import WebSocket from "ws";
+import { Server } from "socket.io";
+import { instrument } from "@socket.io/admin-ui";
+
+const app = express();
+
+app.set("view engine", "pug");
+app.set("views", __dirname + "/views");
+app.use("/public", express.static(__dirname + "/public"));
+app.get("/", (req, res) => res.render("chat"));
+app.get("/*", (req, res) => res.redirect("/")); // 어떤 URL 을 입력해도 home 로 리다이렉트 해주는 코드
+
+// http: , ws: 둘다 가능
+const handleListen = () => console.log(`Listening on http://localhost:5000`);
+
+// http 서버 와 webSocket 서버 둘 다 사용하기 webSocket 서버만 사용해도 된다.
+// http 서버 위에 webSocket  서버를 만들 수 있도록 하기
+const httpServer = http.createServer(app); // http 서버
+const io = new Server(httpServer, {
+  cors: {
+    origin: ["https://admin.socket.io"],
+    credential: true,
+  },
+}); // socket.io 서버 설정
+
+instrument(io, {
+  auth: false,
+});
+
+function publicRooms() {
+  // const sids = io.sockets.adpater.sids;
+  // const rooms = io.sockets.adpater.rooms;
+
+  const {
+    sockets: {
+      adapter: { sids, rooms },
+    },
+  } = io;
+
+  const publicRooms = [];
+  rooms.forEach((_, key) => {
+    if (sids.get(key) === undefined) {
+      publicRooms.push(key);
+    }
+  });
+  return publicRooms;
+}
+
+function countRoom(roomName) {
+  return io.sockets.adapter.rooms.get(roomName)?.size;
+}
 
 // 여기서 부터 socket.io 코드
-io.on("connection", (sk) => {
+io.on("connection", (socket) => {
   // websocket 이 아니라 socketIO 의 socket 이다.
-  console.log("!!!", io.sockets.adapter);
-  sk.onAny(() => {});
+  // console.log("!!!", io.sockets.adapter);
+  socket.onAny(() => {});
 
-  sk.on("join_room", (roomName, showRoom) => {
-    sk["nickname"] = "Anon";
+  socket.on("join_room", (roomName, nick_name, showRoom) => {
+    socket["nickname"] = nick_name;
     // socket io 가 알아서 javascript object로 만들어준다.
     // console.log(data);
-    sk.join(roomName);
+    socket.join(roomName);
     showRoom();
     // 나를 제외한 방에 있는 다른 사람에게 메시지를 보낸다.
     // socket io 는 이게 가능하다.
-    sk.to(roomName).emit("welcome", sk.nickname);
+    socket.to(roomName).emit("welcome", nick_name, countRoom(roomName));
+    io.sockets.emit("room_change", publicRooms());
   });
 
   // 채팅방 나감
-  sk.on("disconnecting", () => {
-    sk.rooms.forEach((room) => sk.to(room).emit("bye", sk.nickname));
+  socket.on("disconnecting", () => {
+    socket.rooms.forEach((room) =>
+      socket.to(room).emit("bye", socket.nickname, countRoom(room) - 1)
+    );
+    socket.on("disconnect", () => {
+      io.sockets.emit("room_change", publicRooms());
+    });
   });
 
   // 채팅 메세지 보냄
-  sk.on("new_message", (chat_message, room_name, done) => {
-    sk.to(room_name).emit("new_message", `${sk.nickname} : ${chat_message}`);
+  socket.on("new_message", (chat_message, room_name, done) => {
+    socket
+      .to(room_name)
+      .emit("new_message", `${socket.nickname} : ${chat_message}`);
     done();
   });
 
+  // sk.on("speech_to_text", (room_name, text) => {
+  //   // console.log(" room_name = ", room_name);
+  //   // console.log(" text = ", text);
+  //   sk.to(room_name).emit("stt", text);
+  // });
+
   // 닉네임 설정
-  sk.on("nickname", (nick) => (sk["nickname"] = nick));
+  // sk.on("nickname", (nick) => (sk["nickname"] = nick));
 });
 
-server.listen(3000, handleListen);
+httpServer.listen(5000, handleListen);

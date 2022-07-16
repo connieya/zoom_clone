@@ -149,12 +149,12 @@ async function initVidepChat() {
   // console.log("recognition  = ", recognition);
 
   recognition.onstart = function () {
-    console.log("onstart ...");
+    // console.log("onstart ...");
     makeNewTextContent(); // 음성 인식 시작시마다 새로운 문단을 추가한다.
   };
 
   recognition.onend = function () {
-    console.log("onend ... ");
+    // console.log("onend ... ");
     recognition.start();
   };
 
@@ -163,7 +163,7 @@ async function initVidepChat() {
       .map((results) => results[0].transcript)
       .join("");
 
-    console.log("texts = ", texts);
+    // console.log("texts = ", texts);
     // console.log("today = ", new Date());
     texts.replace(/느낌표|강조|뿅/gi, "❗️");
 
@@ -183,8 +183,6 @@ welcomeForm.addEventListener("submit", async (event) => {
   console.log("join room !!");
   roomName = room_name.value;
   nickName = nick_name.value;
-  console.log("room_name =  ", room_name.value);
-  console.log("nick_name =  ", nick_name.value);
   const h1 = call.querySelector("h1");
   h1.innerText = `Room : ${room_name.value}`;
   room_name.value = "";
